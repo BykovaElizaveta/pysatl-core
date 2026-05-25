@@ -438,6 +438,9 @@ class ParametricFamily:
         NumericArray
             Gradient with respect to the parameters of the given parametrization.
             Shape is (..., d), where d is the number of parameters of the parametrization.
+
+        ValueError
+            If any value in `x` lies outside the distribution's support.
         """
         if self._base_score is None:
             raise ValueError(

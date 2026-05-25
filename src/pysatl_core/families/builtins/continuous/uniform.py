@@ -272,8 +272,7 @@ def configure_uniform_family() -> None:
             ∂/∂a log f =  1/(b - a)
             ∂/∂b log f = -1/(b - a)
 
-        For points outside the support, the gradient is set to 0 (since density is zero,
-        but the score is typically considered undefined; we return 0 for numerical safety).
+        For points outside the support, there is ValueError.
 
         Parameters
         ----------
@@ -291,11 +290,12 @@ def configure_uniform_family() -> None:
         params = cast(_Standard, parameters)
         a = params.lower_bound
         b = params.upper_bound
-        width = b - a
+        if np.any((x < a) | (x > b)):
+            raise ValueError(f"Score is undefined for x outside support [{a}, {b}]. Got x = {x}")
 
-        inside = (x >= a) & (x <= b)
-        grad_a = np.where(inside, 1.0 / width, 0.0)
-        grad_b = np.where(inside, -1.0 / width, 0.0)
+        width = b - a
+        grad_a = np.full_like(x, 1.0 / width)
+        grad_b = np.full_like(x, -1.0 / width)
         return np.stack([grad_a, grad_b], axis=-1)
 
     Uniform = ParametricFamily(

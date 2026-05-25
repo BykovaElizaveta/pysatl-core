@@ -273,6 +273,13 @@ class TestExponentialFamily(BaseDistributionTest):
         assert grad.shape == (len(x), 1)
         assert grad.dtype == float
 
+    def test_score_raises_for_x_outside_support(self):
+        lam = 0.5
+        dist = self.exponential_family(lambda_=lam)
+        x_bad = np.array([-0.1, -1.0])
+        with pytest.raises(ValueError, match="Score is undefined for x < 0"):
+            dist.family.score(dist.parametrization, x_bad)
+
 
 class TestExponentialFamilyEdgeCases(BaseDistributionTest):
     """Test edge cases and error conditions for exponential distribution."""
